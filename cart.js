@@ -18,7 +18,7 @@ addtocartbtnDom.forEach((addtocartbtnDom) => {
       cartDom.insertAdjacentHTML(
         "beforeend",
         `
-          <div class="d-flex flex-row shadow-sm card cart-items mt-2 mb-3">
+          <div class="d-flex flex-row shadow-sm card cart-items mt-2 mb-3 flex-wrap">
             <div class="p-2">
                 <img src="${product.img}" alt="${product.name}" style="max-width: 100px;"/>
             </div>

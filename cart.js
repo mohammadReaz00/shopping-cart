@@ -18,7 +18,7 @@ addtocartbtnDom.forEach((addtocartbtnDom) => {
       cartDom.insertAdjacentHTML(
         "beforeend",
         `
-          <div class="d-flex flex-row shadow-sm card cart-items mt-2 mb-3 animated flipInX">
+          <div class="d-flex flex-row shadow-sm card cart-items mt-2 mb-3">
             <div class="p-2">
                 <img src="${product.img}" alt="${product.name}" style="max-width: 100px;"/>
             </div>
@@ -47,7 +47,7 @@ addtocartbtnDom.forEach((addtocartbtnDom) => {
         cartDom.insertAdjacentHTML(
           "afterend",
           `
-          <div class="shadow-sm card cart-footer mt-2 mb-3 animated flipInX">
+          <div class="shadow-sm card cart-footer mt-2 mb-3">
             <div class="p-2">
               <div class="discount">
                 <input class="form-control" type="text" placeholder='Use "promo10" to get 10% off' data-action="promo-code">
@@ -78,30 +78,36 @@ addtocartbtnDom.forEach((addtocartbtnDom) => {
 
           // Increase item in cart
           cartItemDom.querySelector('[data-action="increase-item"]').addEventListener("click", () => {
-            cart.forEach((cartItem) => {
-              if (cartItem.name === product.name) {
-                cartItemDom.querySelector(".cart-item-quantity").innerText = ++cartItem.quantity;
-                cartItemDom.querySelector(".cart-item-price").innerText =
-                  parseInt(cartItem.quantity) * parseInt(cartItem.price) + " $";
-                cartTotal += parseInt(cartItem.price);
-                document.querySelector(".pay").innerText = "$" + cartTotal;
-              }
-            });
+            const cartItem = cart.find((item) => item.name === product.name);
+
+            if (cartItem) {
+              cartItem.quantity++;
+              const cartItemQuantity = cartItemDom.querySelector(".cart-item-quantity");
+              const cartItemPrice = cartItemDom.querySelector(".cart-item-price");
+
+              cartItemQuantity.innerText = cartItem.quantity;
+              cartItemPrice.innerText = `${cartItem.quantity * parseInt(cartItem.price)} $`;
+
+              cartTotal += parseInt(cartItem.price);
+              document.querySelector(".pay").innerText = `$${cartTotal}`;
+            }
           });
 
           // Decrease item in cart
           cartItemDom.querySelector('[data-action="decrease-item"]').addEventListener("click", () => {
-            cart.forEach((cartItem) => {
-              if (cartItem.name === product.name) {
-                if (cartItem.quantity > 1) {
-                  cartItemDom.querySelector(".cart-item-quantity").innerText = --cartItem.quantity;
-                  cartItemDom.querySelector(".cart-item-price").innerText =
-                    parseInt(cartItem.quantity) * parseInt(cartItem.price) + " $";
-                  cartTotal -= parseInt(cartItem.price);
-                  document.querySelector(".pay").innerText = "$" + cartTotal;
-                }
-              }
-            });
+            const cartItem = cart.find((item) => item.name === product.name);
+
+            if (cartItem && cartItem.quantity > 1) {
+              cartItem.quantity--;
+              const cartItemQuantity = cartItemDom.querySelector(".cart-item-quantity");
+              const cartItemPrice = cartItemDom.querySelector(".cart-item-price");
+
+              cartItemQuantity.innerText = cartItem.quantity;
+              cartItemPrice.innerText = `${cartItem.quantity * parseInt(cartItem.price)} $`;
+
+              cartTotal -= parseInt(cartItem.price);
+              document.querySelector(".pay").innerText = `$${cartTotal}`;
+            }
           });
 
           // Remove item from cart
@@ -121,6 +127,18 @@ addtocartbtnDom.forEach((addtocartbtnDom) => {
             });
           });
 
+          // Apply discount
+          const discountInput = document.querySelector('[data-action="promo-code"]');
+
+          document.querySelector('[data-action="apply-discount"]').addEventListener("click", () => {
+            if (discountInput.value === "promo10") {
+              // Calculate discount and update pay button
+              const discountAmount = cartTotal * 0.1;
+              const discountedTotal = cartTotal - discountAmount;
+              document.querySelector(".pay").innerText = "$" + discountedTotal;
+              document.querySelector('[data-action="apply-discount"]').disabled = true;
+            }
+          });
           // Clear cart
           document.querySelector('[data-action="clear-cart"]').addEventListener("click", () => {
             cartItemDom.remove();
@@ -131,20 +149,6 @@ addtocartbtnDom.forEach((addtocartbtnDom) => {
             }
             addtocartbtnDom.innerText = "Add to cart";
             addtocartbtnDom.disabled = false;
-          });
-
-          // Apply discount
-          const discountInput = document.querySelector('[data-action="promo-code"]');
-          const payButton = document.querySelector('[data-action="check-out"]');
-
-          document.querySelector('[data-action="apply-discount"]').addEventListener("click", () => {
-            if (discountInput.value === "promo10") {
-              // Calculate discount and update pay button
-              const discountAmount = cartTotal * 0.1;
-              const discountedTotal = cartTotal - discountAmount;
-              document.querySelector(".pay").innerText = "$" + discountedTotal;
-              document.querySelector('[data-action="apply-discount"]').disabled = true;
-            }
           });
         }
       });
